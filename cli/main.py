@@ -46,3 +46,30 @@ def analyze(path):
     except Exception as e:
         click.echo(f"❌ Error: {e}", err=True)
         raise
+
+
+@cli.command()
+@click.argument("query")
+@click.option("--path", default=".", help="Path to the code repository")
+@click.option("--top", default=3, help="Number of result")
+def search(query, path, top):
+    """Search codebase semantically"""
+    click.echo(f"🔍 Searching for: '{query}'\n")
+    try:
+        reader = RepoReader(path)
+        index = CodeIndex(reader)
+        index.build_index()
+
+        results = index.search(query, top_k=top)
+
+        for i, result in enumerate(results, 1):
+            click.echo(f"Result {i}:")
+            click.echo(f"  File: {result['file']}")
+            click.echo(f"  Lines: {result['lines']}")
+            if result["name"]:
+                click.echo(f"  Name: {result['name']}")
+            click.echo(f"  Code:\n{result['code'][:200]}...\n")
+
+    except Exception as e:
+        click.echo(f"❌ Error: {e}", err=True)
+        raise
