@@ -1,6 +1,6 @@
 import ast
 from pathlib import Path
-from typing import Dict, List, Set
+from typing import Dict, List, Optional, Set
 from schemas.base import DependencyData
 from mcp_servers.repo_reader.reader import RepoReader
 
@@ -80,3 +80,29 @@ class DependencyGraph:
                         imports.append(module_path)
 
         return list(set(imports))
+
+    def _resolve_module_to_file(
+        self, module_name: str, current_dir: Path
+    ) -> Optional[str]:
+        """Convert module name to relative file path"""
+        repo_root = self.reader.repo_path
+
+        # Convert module path to file path
+        # e.g., "agents.dependency" -> "agents/dependency.py"
+        module_parts = module_name.split(".")
+
+        # Try as relative import from current directory
+        potential_file = current_dir / "/".join(module_parts)
+        for suffix in [".py", "/__init__.py"]:
+            test_path = Path(str(potential_file) + suffix)
+            if test_path.exists():
+                return str(test_path.relative_to(repo_root))
+
+        # try as absolute import from repo root
+        potential_file = repo_root / "/".join(module_parts)
+        for suffix in [".py", "/__init__.py"]:
+            test_path = Path(str(potential_file) + suffix)
+            if test_path.exists():
+                return str(test_path.relative_to(repo_root))
+
+        return None
