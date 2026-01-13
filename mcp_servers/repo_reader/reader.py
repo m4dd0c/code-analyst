@@ -161,3 +161,24 @@ class RepoReader:
 
         add_dir(self.repo_path)
         return "\n".join(tree_lines)
+
+    def get_summary(self) -> dict:
+        """Get repository summary statistics"""
+        files = self.walk_repo()
+
+        extensions = {}
+        total_lines = 0
+        total_size = 0
+
+        for file in files:
+            ext = file.extension or "no_extension"
+            extensions[ext] = extensions.get(ext, 0) + 1
+            total_lines += file.line_count
+            total_size += file.size
+
+        return {
+            "total_files": len(files),
+            "total_lines": total_lines,
+            "total_size_bytes": total_size,
+            "extensions": extensions,
+        }
