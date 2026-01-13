@@ -117,3 +117,14 @@ class DependencyGraph:
                 file_path=file_path, imports=[], imported_by=[], fan_in=0, fan_out=0
             ),
         ).imports
+
+    def get_dependents(self, file_path: str) -> List[str]:
+        """What files import this?"""
+        if not self._built:
+            self.build()
+        return self.graph.get(
+            file_path,
+            DependencyData(
+                file_path=file_path, imports=[], imported_by=[], fan_in=0, fan_out=0
+            ),
+        ).imported_by
