@@ -1,7 +1,6 @@
 import ast
 import os
-from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Dict, Tuple
 from pydantic import SecretStr
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.schema import Document
@@ -19,7 +18,7 @@ class CodeIndex:
     def __init__(self, repo_reader: RepoReader):
         self.reader = repo_reader
         self.embeddings = GoogleGenerativeAIEmbeddings(
-            model="models/embedding-001",
+            model="gemini-embedding-1.0",
             google_api_key=SecretStr(api_key) if api_key else None,
         )
         self.vectorstore = None
@@ -135,4 +134,31 @@ class CodeIndex:
                 "name": doc.metadata.get("name", ""),
             }
             for doc in results
+        ]
+
+    def search_with_scores(
+        self, query: str, top_k: int = 5
+    ) -> List[Tuple[Dict, float]]:
+        """Search with similarity scores"""
+        if not self._indexed:
+            self.build_index()
+
+        if self.vectorstore is None:
+            raise RuntimeError("Code index not built")
+
+        results = self.vectorstore.similarity_search_with_score(query, k=top_k)
+
+        return [
+            (
+                {
+                    "code": doc.page_content,
+                    "file": doc.metadata["file"],
+                    "lines": doc.metadata["lines"],
+                    "type": doc.metadata["type"],
+                    "language": doc.metadata.get("language", "unknown"),
+                    "name": doc.metadata.get("name", ""),
+                },
+                score,
+            )
+            for doc, score in results
         ]
