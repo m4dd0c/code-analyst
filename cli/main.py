@@ -104,3 +104,19 @@ def impact(file_path, path):
     except Exception as e:
         click.echo(f"❌ Error: {e}", err=True)
         raise
+
+
+@cli.command()
+@click.argument("path", default=".")
+def tree(path):
+    """Show repository file tree"""
+    try:
+        reader = RepoReader(path)
+        click.echo(reader.get_file_tree())
+    except Exception as e:
+        click.echo(f"❌ Error: {e}", err=True)
+        raise
+
+
+if __name__ == "__main__":
+    cli()
