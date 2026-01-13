@@ -6,7 +6,6 @@ pydantic
 
 # Vector Store
 faiss-cpu
-chromadb
 
 # Repo Analysis
 gitpython
@@ -15,5 +14,5 @@ networkx
 # CLI
 click
 
-# Parsing
-tree-sitter
+# Utils
+python-dotenv
