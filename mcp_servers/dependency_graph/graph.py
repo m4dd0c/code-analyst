@@ -106,3 +106,14 @@ class DependencyGraph:
                 return str(test_path.relative_to(repo_root))
 
         return None
+
+    def get_dependencies(self, file_path: str) -> List[str]:
+        """What does this file import?"""
+        if not self._built:
+            self.build()
+        return self.graph.get(
+            file_path,
+            DependencyData(
+                file_path=file_path, imports=[], imported_by=[], fan_in=0, fan_out=0
+            ),
+        ).imports
