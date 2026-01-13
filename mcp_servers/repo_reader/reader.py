@@ -93,3 +93,41 @@ class RepoReader:
                 return file_data
         except Exception as e:
             raise IOError(f"Error reading file {file_path}: {e}")
+
+    def walk_repo(self, max_file_size: int = 1_000_000) -> List[FileData]:
+        """
+        Walk repository and return all code files
+
+        Args:
+            max_file_size: Maximum file size in bytes (default 1MB)
+        """
+        files = []
+        for root, dirs, filenames in os.walk(self.repo_path):
+            # filter out ignored directories IN_PLACE
+            dirs[:] = [d for d in dirs if d not in self.IGNORE_DIRS]
+
+            for filename in filenames:
+                # skip ignored files
+                if filename in self.IGNORE_FILES:
+                    continue
+
+                # only process code files
+                file_path = Path(root) / filename
+                if file_path.suffix not in self.CODE_EXTENSIONS:
+                    continue
+
+                # Skip large files
+                if file_path.stat().st_size > max_file_size:
+                    print(
+                        f"⚠️  Skipping large file: {file_path} ({file_path.stat().st_size} bytes)"
+                    )
+                    continue
+
+                rel_path = file_path.relative_to(self.repo_path)
+                try:
+                    file_data = self.read_files(str(rel_path))
+                    files.append(file_data)
+                except Exception as e:
+                    print(f"⚠️  Error reading {rel_path}: {e}")
+                    continue
+        return files
