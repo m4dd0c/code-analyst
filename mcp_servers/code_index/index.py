@@ -109,3 +109,30 @@ class CodeIndex:
             )
 
         return chunks
+
+    def search(self, query: str, top_k: int = 5) -> List[Dict]:
+        """
+        Semantic search for relevant code
+
+        Returns:
+            List of dicts with code, file, lines, and metadata
+        """
+        if not self._indexed:
+            self.build_index()
+
+        if self.vectorstore is None:
+            raise RuntimeError("Code index not built")
+
+        results = self.vectorstore.similarity_search(query, k=top_k)
+
+        return [
+            {
+                "code": doc.page_content,
+                "file": doc.metadata["file"],
+                "lines": doc.metadata["lines"],
+                "type": doc.metadata["type"],
+                "language": doc.metadata.get("language", "unknown"),
+                "name": doc.metadata.get("name", ""),
+            }
+            for doc in results
+        ]
