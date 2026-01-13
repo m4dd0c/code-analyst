@@ -131,3 +131,33 @@ class RepoReader:
                     print(f"⚠️  Error reading {rel_path}: {e}")
                     continue
         return files
+
+    def get_file_tree(self) -> str:
+        """Generate a tree structure of the repository"""
+        tree_lines = [str(self.repo_path.name + "/")]
+
+        def add_dir(path: Path, prefix: str = ""):
+            try:
+                items = sorted(path.iterdir(), key=lambda x: (not x.is_dir(), x.name))
+            except PermissionError:
+                return
+
+            items = [
+                item
+                for item in items
+                if item.name not in self.IGNORE_DIRS
+                and item.name not in self.IGNORE_FILES
+            ]
+
+            for i, item in enumerate(items):
+                is_last = i == len(items) - 1
+                current_prefix = "└── " if is_last else "├── "
+                tree_lines.append(prefix + current_prefix + item.name)
+                if item.is_dir():
+                    extension_prefix = prefix + (
+                        "    " if i == len(items) - 1 else "│   "
+                    )
+                    add_dir(item, prefix + extension_prefix)
+
+        add_dir(self.repo_path)
+        return "\n".join(tree_lines)
