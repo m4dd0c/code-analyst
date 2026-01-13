@@ -152,7 +152,10 @@ class RepoReader:
             for i, item in enumerate(items):
                 is_last = i == len(items) - 1
                 current_prefix = "└── " if is_last else "├── "
-                tree_lines.append(prefix + current_prefix + item.name)
+
+                current_path = prefix + current_prefix + item.name
+                tree_lines.append(current_path + "/" if item.is_dir() else current_path)
+
                 if item.is_dir():
                     extension_prefix = prefix + (
                         "    " if i == len(items) - 1 else "│   "
