@@ -9,7 +9,7 @@ class DependencyGraph:
     """MCP Server: Build and query dependency graph"""
 
     def __init__(self, repo_reader: RepoReader):
-        self.repo_reader = repo_reader
+        self.reader = repo_reader
         self.graph: Dict[str, DependencyData] = {}
         self._built = False
 
@@ -24,7 +24,7 @@ class DependencyGraph:
         import_map = {}
         # extract imports from each file
         for file_data in files:
-            if file_data.path.suffix == ".py":
+            if file_data.extension == ".py":
                 imports = self._extract_python_imports(
                     file_data.content, file_data.path
                 )
@@ -53,3 +53,30 @@ class DependencyGraph:
         self._built = True
         print(f"✅ Graph built:  {len(self.graph)} files analyzed")
         return self.graph
+
+    def _extract_python_imports(self, code: str, file_path: str) -> List[str]:
+        """Extract import statements from Python code using AST"""
+        imports = []
+
+        try:
+            tree = ast.parse(code)
+        except SyntaxError:
+            return imports
+
+        repo_root = self.reader.repo_path
+        file_dir = (repo_root / file_path).parent
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    module_path = self._resolve_module_to_file(alias.name, file_dir)
+                    if module_path:
+                        imports.append(module_path)
+
+            elif isinstance(node, ast.ImportFrom):
+                if node.module:
+                    module_path = self._resolve_module_to_file(node.module, file_dir)
+                    if module_path:
+                        imports.append(module_path)
+
+        return list(set(imports))
