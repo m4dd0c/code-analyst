@@ -73,3 +73,34 @@ def search(query, path, top):
     except Exception as e:
         click.echo(f"❌ Error: {e}", err=True)
         raise
+
+
+@cli.command()
+@click.argument("file_path")
+@click.option("--path", default=".", help="Path to the code repository")
+def impact(file_path, path):
+    """Show impact of changing a file"""
+    click.echo(f"📊 Impact analysis for: {file_path}\n")
+
+    try:
+        reader = RepoReader(path)
+        graph = DependencyGraph(reader)
+        graph.build()
+
+        dependents = graph.get_dependents(file_path)
+        dependencies = graph.get_dependencies(file_path)
+        fan_in = graph.get_fan_in(file_path)
+
+        click.echo(f"  Files that depend on this:  {fan_in}")
+        if dependents:
+            for dep in dependents[:10]:
+                click.echo(f"    - {dep}")
+
+        click.echo(f"\n  Files this depends on: {len(dependencies)}")
+        if dependencies:
+            for dep in dependencies[:10]:
+                click.echo(f"    - {dep}")
+
+    except Exception as e:
+        click.echo(f"❌ Error: {e}", err=True)
+        raise
