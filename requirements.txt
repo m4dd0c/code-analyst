@@ -1,0 +1,19 @@
+# Core
+langchain
+langchain-google-genai
+langgraph
+pydantic
+
+# Vector Store
+faiss-cpu
+chromadb
+
+# Repo Analysis
+gitpython
+networkx
+
+# CLI
+click
+
+# Parsing
+tree-sitter
