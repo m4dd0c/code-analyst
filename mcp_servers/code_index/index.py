@@ -48,3 +48,64 @@ class CodeIndex:
         self.vectorstore = FAISS.from_documents(documents, self.embeddings)
         self._indexed = True
         print("✅ Code index built Successfully.")
+
+    def _chunk_by_function(self, file_data) -> List[Document]:
+        """Split Python files by function/class (semantic chunking)"""
+        chunks = []
+
+        try:
+            tree = ast.parse(file_data.content)
+
+            for node in ast.walk(tree):
+                if isinstance(node, (ast.FunctionDef, ast.ClassDef)):
+                    start_line = node.lineno
+                    end_line = node.end_lineno or start_line
+
+                    # extract code chunk
+                    code_lines = file_data.lines[start_line - 1 : end_line]
+                    code_chunk = "".join(code_lines)
+
+                    chunks.append(
+                        Document(
+                            page_content=code_chunk,
+                            metadata={
+                                "file": file_data.path,
+                                "lines": f"{start_line}-{end_line}",
+                                "type": "function"
+                                if isinstance(node, ast.FunctionDef)
+                                else "class",
+                                "name": node.name,
+                                "language": "python",
+                            },
+                        )
+                    )
+        except SyntaxError:
+            # If AST fails, fall back to line chunking
+            return self._chunk_by_lines(file_data)
+
+        return chunks
+
+    def _chunk_by_lines(self, file_data, chunk_size: int = 50) -> List[Document]:
+        """Chunk non-python or unparseable files by line count"""
+        chunks = []
+        lines = file_data.line_count
+
+        for i in range(0, len(lines), chunk_size):
+            chunk_lines = lines[i : i + chunk_size]
+            code_chunk = "".join(chunk_lines)
+
+            chunks.append(
+                Document(
+                    page_content=code_chunk,
+                    metadata={
+                        "file": file_data.path,
+                        "lines": f"{i + 1}-{i + len(chunk_lines)}",
+                        "type": "chunk",
+                        "language": file_data.extension[1:]
+                        if file_data.extension
+                        else "unknown",
+                    },
+                )
+            )
+
+        return chunks
