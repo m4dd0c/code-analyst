@@ -128,3 +128,24 @@ class DependencyGraph:
                 file_path=file_path, imports=[], imported_by=[], fan_in=0, fan_out=0
             ),
         ).imported_by
+
+    def get_fan_in(self, file_path: str) -> int:
+        """How many files depend on this?  (Risk indicator)"""
+        if not self._built:
+            self.build()
+        return self.graph.get(
+            file_path,
+            DependencyData(
+                file_path=file_path, imports=[], imported_by=[], fan_in=0, fan_out=0
+            ),
+        ).fan_in
+
+    def get_high_fan_in_files(self, top_n: int = 10) -> List[tuple[str, int]]:
+        """Get files with highest fan-in (most depended upon)"""
+        if not self._built:
+            self.build()
+
+        sorted_files = sorted(
+            self.graph.items(), key=lambda x: x[1].fan_in, reverse=True
+        )
+        return [(path, data.fan_in) for path, data in sorted_files[:top_n]]
