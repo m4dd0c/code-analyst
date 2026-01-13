@@ -1,6 +1,7 @@
 # Core
 langchain
 langchain-google-genai
+langchain-community
 langgraph
 pydantic
 
