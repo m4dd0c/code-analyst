@@ -142,6 +142,7 @@ class RepoReader:
             except PermissionError:
                 return
 
+            # removed ignored dirs and files
             items = [
                 item
                 for item in items

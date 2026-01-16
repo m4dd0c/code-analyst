@@ -3,7 +3,7 @@ import os
 from typing import List, Dict, Tuple
 from pydantic import SecretStr
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain.schema import Document
+from langchain_core.documents import Document
 from mcp_servers.repo_reader.reader import RepoReader
 from dotenv import load_dotenv
 from langchain_community.vectorstores import FAISS
@@ -18,7 +18,7 @@ class CodeIndex:
     def __init__(self, repo_reader: RepoReader):
         self.reader = repo_reader
         self.embeddings = GoogleGenerativeAIEmbeddings(
-            model="gemini-embedding-1.0",
+            model="models/gemini-embedding-1.0",
             google_api_key=SecretStr(api_key) if api_key else None,
         )
         self.vectorstore = None
@@ -89,8 +89,9 @@ class CodeIndex:
         chunks = []
         lines = file_data.line_count
 
-        for i in range(0, len(lines), chunk_size):
-            chunk_lines = lines[i : i + chunk_size]
+        for i in range(0, file_data.line_count, chunk_size):
+            end_idx = min(i + chunk_size, file_data.line_count)
+            chunk_lines = file_data.lines[i:end_idx] 
             code_chunk = "".join(chunk_lines)
 
             chunks.append(
