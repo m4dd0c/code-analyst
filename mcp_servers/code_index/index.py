@@ -18,7 +18,7 @@ class CodeIndex:
     def __init__(self, repo_reader: RepoReader):
         self.reader = repo_reader
         self.embeddings = GoogleGenerativeAIEmbeddings(
-            model="models/gemini-embedding-1.0",
+            model="models/gemini-embedding-001",
             google_api_key=SecretStr(api_key) if api_key else None,
         )
         self.vectorstore = None
