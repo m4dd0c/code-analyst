@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aegis"
+version = "0.1.0"
+description = "CLI-first multi-agent AI for evidence-backed codebase analysis"
+authors = [{name = "m4dd0c", email = "manishsuthar078@gmail.com"}]
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+]
+
+dependencies = [
+    "click>=8.1.7",
+    "langchain>=0.3.0,<0.4.0",
+    "langchain-google-genai>=1.0.10",
+    "langgraph>=0.3.0,<0.4.0",
+    "langchain-community>=0.3.0,<0.4.0",
+    "faiss-cpu>=1.8.0",
+    "pydantic>=2.9.0,<3.0.0",
+    "python-dotenv>=1.0.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/m4dd0c/aegis"
+Source = "https://github.com/m4dd0c/aegis"
+
+[project.scripts]
+aegis = "cli.main:cli"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "black>=24.8.0",
+    "isort>=5.13.2", 
+    "mypy>=1.11.0",
+    "ruff>=0.6.0",
+    "langsmith>=0.3.0",
+]
