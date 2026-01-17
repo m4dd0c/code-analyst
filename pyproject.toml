@@ -9,11 +9,10 @@ description = "CLI-first multi-agent AI for evidence-backed codebase analysis"
 authors = [{name = "m4dd0c", email = "manishsuthar078@gmail.com"}]
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = "MIT"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.10",
 ]
 
@@ -24,22 +23,23 @@ dependencies = [
     "langgraph>=0.3.0,<0.4.0",
     "langchain-community>=0.3.0,<0.4.0",
     "faiss-cpu>=1.8.0",
+    "gitpython>=3.1.40",
+    "networkx>=3.3",
     "pydantic>=2.9.0,<3.0.0",
     "python-dotenv>=1.0.1",
 ]
 
 [project.urls]
 Homepage = "https://github.com/m4dd0c/aegis"
-Source = "https://github.com/m4dd0c/aegis"
 
 [project.scripts]
-aegis = "cli.main:cli"
+aegis = "aegis.cli.main:cli"
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.3.0",
     "black>=24.8.0",
-    "isort>=5.13.2", 
+    "isort>=5.13.2",
     "mypy>=1.11.0",
     "ruff>=0.6.0",
     "langsmith>=0.3.0",
