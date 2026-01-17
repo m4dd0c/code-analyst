@@ -222,7 +222,7 @@ class AnalysisWorkflow:
 
         if not outputs:
             # Return error output
-            from schemas.base import Evidence
+            from aegis.schemas.base import Evidence
 
             state["final_output"] = AgentOutput(
                 analysis="❌ No agent outputs available",

@@ -384,8 +384,8 @@ def search(query, path, top):
     click.echo(f"🔍 Searching for: '{query}'\n")
 
     try:
-        from mcp_servers.repo_reader.reader import RepoReader
-        from mcp_servers.code_index.index import CodeIndex
+        from aegis.mcp_servers.repo_reader.reader import RepoReader
+        from aegis.mcp_servers.code_index.index import CodeIndex
 
         reader = RepoReader(path)
         index = CodeIndex(reader)
@@ -415,7 +415,7 @@ def search(query, path, top):
 def tree(path):
     """Show repository file tree"""
     try:
-        from mcp_servers.repo_reader.reader import RepoReader
+        from aegis.mcp_servers.repo_reader.reader import RepoReader
 
         reader = RepoReader(path)
         click.echo(reader.get_file_tree())
