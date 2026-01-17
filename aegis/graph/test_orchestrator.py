@@ -1,44 +1,85 @@
+"""
+Test LangGraph workflow integration
+"""
+
 from aegis.graph.orchestrator import Orchestrator
 from aegis.graph.states import OrchestratorInput
 
 
-def test_enhanced_orchestrator():
-    """Test enhanced orchestrator with new commands"""
-    print("🧪 Testing Enhanced Orchestrator.. .\n")
+def test_langgraph_single_agent():
+    """Test single-agent workflow"""
+    print("🧪 Testing LangGraph - Single Agent\n")
 
     orchestrator = Orchestrator(repo_path=".")
 
-    # Test 1: Dead code detection
-    print("=" * 60)
-    print("Test 1: Dead Code Detection")
-    print("=" * 60)
-
-    deadcode_input: OrchestratorInput = {
-        "command": "deadcode",
+    input_data: OrchestratorInput = {
+        "command": "risk",
         "repo_path": ".",
-        "threshold": 0.7,
-        "top_n": 10,
+        "top_n": 5,
         "file_path": None,
+        "threshold": None,
         "max_depth": None,
         "goal": None,
         "diagram_type": None,
         "user_query": None,
     }
 
-    output = orchestrator.execute(deadcode_input)
-    print("\n✅ Dead code analysis completed")
-    print(f"   Confidence: {output.confidence}")
-    print(f"   Evidence count: {len(output.evidence)}")
+    result = orchestrator.execute(input_data)
 
-    # Test 2: Architecture proposal
-    print("\n" + "=" * 60)
-    print("Test 2: Architecture Proposal (Multi-Agent)")
-    print("=" * 60)
+    print("\n✅ Single-agent workflow complete")
+    print(f"   Confidence: {result.confidence}")
+    print(f"   Evidence: {len(result.evidence)} items")
+    print(f"   Metadata: {result.metadata}")
 
-    proposal_input: OrchestratorInput = {
+    assert result.confidence > 0
+    assert len(result.evidence) > 0
+    if result.metadata:
+        assert result.metadata["workflow"] == "langgraph"
+
+
+def test_langgraph_multi_agent():
+    """Test multi-agent workflow with verification"""
+    print("\n🧪 Testing LangGraph - Multi-Agent\n")
+
+    orchestrator = Orchestrator(repo_path=".")
+
+    input_data: OrchestratorInput = {
+        "command": "analyze",
+        "repo_path": ".",
+        "file_path": None,
+        "top_n": None,
+        "threshold": None,
+        "max_depth": None,
+        "goal": None,
+        "diagram_type": None,
+        "user_query": None,
+    }
+
+    result = orchestrator.execute(input_data)
+
+    print("\n✅ Multi-agent workflow complete")
+    if result.metadata:
+        print(f"   Agents executed: {result.metadata.get('agents_executed')}")
+    print(f"   Confidence: {result.confidence}")
+    print(f"   Evidence: {len(result.evidence)} items")
+
+    assert result.confidence > 0
+    assert len(result.evidence) > 0
+    if result.metadata:
+        assert "architecture" in result.metadata["agents_executed"]
+        assert "risk" in result.metadata["agents_executed"]
+
+
+def test_langgraph_with_verification():
+    """Test workflow includes verification step"""
+    print("\n🧪 Testing LangGraph - With Verification\n")
+
+    orchestrator = Orchestrator(repo_path=".")
+
+    input_data: OrchestratorInput = {
         "command": "propose-architecture",
         "repo_path": ".",
-        "goal": "Improve maintainability and reduce coupling",
+        "goal": "Test goal",
         "file_path": None,
         "top_n": None,
         "threshold": None,
@@ -47,48 +88,19 @@ def test_enhanced_orchestrator():
         "user_query": None,
     }
 
-    output = orchestrator.execute(proposal_input)
-    print("\n✅ Proposal generated")
-    print(f"   Confidence: {output.confidence}")
-    print(f"   Evidence count: {len(output.evidence)}")
-    print(f"   Agents run: {output.metadata.get('agents_run')}")
-
-    # Test 3: Natural language query
-    print("\n" + "=" * 60)
-    print("Test 3: Natural Language 'Ask' Command")
-    print("=" * 60)
-
-    ask_input: OrchestratorInput = {
-        "command": "ask",
-        "repo_path": ".",
-        "user_query": "What are the high-risk files in this codebase?",
-        "file_path": None,
-        "top_n": None,
-        "threshold": None,
-        "max_depth": None,
-        "goal": None,
-        "diagram_type": None,
-    }
-
-    output = orchestrator.execute(ask_input)
-    print("\n✅ Question answered")
-    print(f"   Confidence: {output.confidence}")
-
-    # Test 4: Diagram generation
-    print("\n" + "=" * 60)
-    print("Test 4: Mermaid Diagram Generation")
-    print("=" * 60)
-
-    diagram = orchestrator.generate_diagram("architecture")
-    print(f"\n📊 Generated diagram ({len(diagram)} chars)")
-    print("First 200 chars:")
-    print(diagram[:200] + "...")
-    print("\n✅ Diagram generated")
-
-    print("\n" + "=" * 60)
-    print("🎉 All Enhanced Orchestrator tests passed!")
-    print("=" * 60)
+    result = orchestrator.execute(input_data)
+    print("\n✅ Verification workflow complete")
+    if result.metadata:
+        print(f"   Agents executed: {result.metadata.get('agents_executed')}")
+        # Verifier should have run
+        assert "verifier" in result.metadata.get("agents_executed", [])
 
 
 if __name__ == "__main__":
-    test_enhanced_orchestrator()
+    test_langgraph_single_agent()
+    test_langgraph_multi_agent()
+    test_langgraph_with_verification()
+
+    print("\n" + "=" * 60)
+    print("🎉 All LangGraph tests passed!")
+    print("=" * 60)
